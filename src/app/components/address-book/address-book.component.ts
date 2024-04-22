@@ -28,7 +28,7 @@ export interface BalanceAccount {
 
 export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  nano = 1000000000000000000000000;
+  nano = 10000000000000000000000000;
   activePanel = 0;
   creatingNewEntry = false;
 
@@ -170,7 +170,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
     // Fetch pending of all tracked accounts
     let pending;
     if (this.appSettings.settings.minimumReceive) {
-      const minAmount = this.util.nano.mnanoToRaw(this.appSettings.settings.minimumReceive);
+      const minAmount = this.util.nano.nanoToRaw(this.appSettings.settings.minimumReceive);
       pending = await this.api.accountsPendingLimitSorted(accountIDs, minAmount.toString(10));
     } else {
       pending = await this.api.accountsPendingSorted(accountIDs);
@@ -196,7 +196,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
       // Add balances from RPC data
       } else {
         balanceAccount.balance = new BigNumber(apiAccounts.balances[entry.account].balance);
-        balanceAccount.balanceFiat = this.util.nano.rawToMnano(balanceAccount.balance).times(this.fiatPrice).toNumber();
+        balanceAccount.balanceFiat = this.util.nano.rawToNano(balanceAccount.balance).times(this.fiatPrice).toNumber();
         balanceAccount.balanceRaw = new BigNumber(balanceAccount.balance).mod(this.nano);
       }
       this.totalTrackedBalance = this.totalTrackedBalance.plus(balanceAccount.balance);
@@ -286,7 +286,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Remove spaces and convert to nano prefix
-    this.newAddressAccount = this.newAddressAccount.replace(/ /g, '').replace('xrb_', 'nano_');
+    this.newAddressAccount = this.newAddressAccount.replace(/ /g, '');
 
     // If the name has been changed, make sure no other entries are using that name
     if ( (this.newAddressName !== this.previousAddressName) && this.addressBookService.nameExists(this.newAddressName) ) {
@@ -377,7 +377,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
   async exportAddressBook() {
     const exportData = this.addressBookService.addressBook;
     const base64Data = btoa(this.toBinary(JSON.stringify(exportData)));
-    const exportUrl = `https://nault.cc/import-address-book#${base64Data}`;
+    const exportUrl = `https://wallet.pawr.net/import-address-book#${base64Data}`;
     this.addressBookQRExportUrl = exportUrl;
     this.addressBookShowFileExport = true;
 
@@ -388,7 +388,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   exportAddressBookToFile() {
-    const fileName = `Nault-AddressBook.json`;
+    const fileName = `PawrVault-AddressBook.json`;
 
     const exportData = this.addressBookService.addressBook;
     this.triggerFileDownload(fileName, exportData);
@@ -407,7 +407,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit, OnDestroy {
       const fileData = event.target['result'] as string;
       try {
         const importData = JSON.parse(fileData);
-        if (!importData.length || (!importData[0].account && !importData[0].address)) {
+        if (!importData.length || !importData[0].account) {
           return this.notificationService.sendError(this.translocoService.translate('address-book.bad-import-data-make-sure-you-selected-a-nault-address-book'));
         }
 

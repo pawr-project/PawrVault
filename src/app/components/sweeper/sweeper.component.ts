@@ -258,9 +258,6 @@ export class SweeperComponent implements OnInit {
       // create the block with the work found
       const block = nanocurrency.createBlock(privKey, {balance: '0', representative: this.representative,
       work: work, link: this.destinationAccount, previous: previous});
-      // replace xrb with nano (old library)
-      block.block.account = block.block.account.replace('xrb', 'nano');
-      block.block.link_as_account = block.block.link_as_account.replace('xrb', 'nano');
 
       // publish block for each iteration
       const data = await this.api.process(block.block, TxType.send);
@@ -268,12 +265,12 @@ export class SweeperComponent implements OnInit {
         const blockInfo = await this.api.blockInfo(data.hash);
         let nanoAmountSent = null;
         if (blockInfo.amount) {
-          nanoAmountSent = this.util.nano.rawToMnano(blockInfo.amount);
+          nanoAmountSent = this.util.nano.rawToNano(blockInfo.amount);
           this.totalSwept = this.util.big.add(this.totalSwept, nanoAmountSent);
         }
         this.notificationService.sendInfo('Account ' + address + ' was swept and ' +
-        (nanoAmountSent ? ( 'Ӿ' + nanoAmountSent.toString(10) ) : '') + ' transferred to ' + this.destinationAccount, {length: 15000});
-        this.appendLog('Funds transferred ' + (nanoAmountSent ? ('(Ӿ' + nanoAmountSent.toString(10) + ')') : '') + ': ' + data.hash);
+        (nanoAmountSent ? (nanoAmountSent.toString(10) + ' PAWR') : '') + ' transferred to ' + this.destinationAccount, {length: 15000});
+        this.appendLog('Funds transferred ' + (nanoAmountSent ? ('(' + nanoAmountSent.toString(10) + ' PAWR') : '') + ': ' + data.hash);
         console.log(this.adjustedBalance + ' raw transferred to ' + this.destinationAccount);
       } else {
         this.notificationService.sendWarning(`Failed processing block.`);
@@ -304,13 +301,10 @@ export class SweeperComponent implements OnInit {
         // input hash is the opening address public key
         workInputHash = this.pubKey;
       }
-      const work = await this.workPool.getWork(workInputHash, 1 / 64); // receive threshold
+      const work = await this.workPool.getWork(workInputHash, 1); // receive threshold
       // create the block with the work found
       const block = nanocurrency.createBlock(this.privKey, {balance: this.adjustedBalance, representative: this.representative,
       work: work, link: key, previous: this.previous});
-      // replace xrb with nano (old library)
-      block.block.account = block.block.account.replace('xrb', 'nano');
-      block.block.link_as_account = block.block.link_as_account.replace('xrb', 'nano');
       // new previous
       this.previous = block.hash;
 
@@ -356,7 +350,7 @@ export class SweeperComponent implements OnInit {
     // check for pending first
     let data = null;
     if (this.appSettings.settings.minimumReceive) {
-      const minAmount = this.util.nano.mnanoToRaw(this.appSettings.settings.minimumReceive).toString(10);
+      const minAmount = this.util.nano.nanoToRaw(this.appSettings.settings.minimumReceive).toString(10);
       if (this.appSettings.settings.pendingOption === 'amount') {
         data = await this.api.pendingLimitSorted(address, this.maxIncoming, minAmount);
       } else {
@@ -378,9 +372,9 @@ export class SweeperComponent implements OnInit {
       Object.keys(data.blocks).forEach(function(key) {
         raw = this.util.big.add(raw, data.blocks[key].amount);
       }.bind(this));
-      const nanoAmount = this.util.nano.rawToMnano(raw);
-      const pending = {count: Object.keys(data.blocks).length, raw: raw, XNO: nanoAmount, blocks: data.blocks};
-      const row = 'Found ' + pending.count + ' pending containing total ' + pending.XNO + ' XNO';
+      const nanoAmount = this.util.nano.rawToNano(raw);
+      const pending = {count: Object.keys(data.blocks).length, raw: raw, PAWR: nanoAmount, blocks: data.blocks};
+      const row = 'Found ' + pending.count + ' pending containing total ' + pending.PAWR + ' PAWR';
       this.appendLog(row);
 
       // create receive blocks for all pending
@@ -469,8 +463,8 @@ export class SweeperComponent implements OnInit {
       } else {
         // all private keys have been processed
         this.appendLog('Finished processing all accounts');
-        this.appendLog('Ӿ' + this.totalSwept + ' transferred');
-        this.notificationService.sendInfo('Finished processing all accounts. Ӿ' + this.totalSwept + ' transferred', {length: 0});
+        this.appendLog(this.totalSwept + ' Pawr transferred');
+        this.notificationService.sendInfo('Finished processing all accounts. ' + this.totalSwept + ' Pawr transferred', {length: 0});
         this.sweeping = false;
       }
     }.bind(this));
@@ -567,7 +561,7 @@ export class SweeperComponent implements OnInit {
     // let user confirm account
     const UIkit = window['UIkit'];
     try {
-      const msg = '<p class="uk-alert uk-alert-danger"><br><span class="uk-flex"><span uk-icon="icon: warning; ratio: 3;" class="uk-align-center"></span></span><span style="font-size: 18px;">You are about to empty the source wallet, which will <b>transfer all funds from it to the destination address</b>.</span><br><br><b style="font-size: 18px;">Before continuing, make sure you (or someone) have saved the secret recovery seed and/or mnemonic of the specified destination address</b>.<br><br><span style="font-size: 18px;"><b>YOU WILL NOT BE ABLE TO RECOVER THE FUNDS</b><br>without a backup of the specified destination address.</span></p><br>';
+      const msg = '<p class="uk-alert uk-alert-danger"><br><span class="uk-flex"><span uk-icon="icon: warning; ratio: 3;" class="uk-align-center"></span></span><span style="font-size: 18px;">You are about to empty the source wallet, which will <b>transfer all funds from it to the destination address</b>.</span><br><br><b style="font-size: 18px;">Before continuing, make sure you (or someone) have saved the Pawr seed and/or mnemonic of the specified destination address</b>.<br><br><span style="font-size: 18px;"><b>YOU WILL NOT BE ABLE TO RECOVER THE FUNDS</b><br>without a backup of the specified destination address.</span></p><br>';
       await UIkit.modal.confirm(msg);
       this.sweepContinue();
     } catch (err) {

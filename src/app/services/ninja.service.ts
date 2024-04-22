@@ -8,7 +8,7 @@ export class NinjaService {
 
   // URL to MyNanoNinja-compatible representative health check API
   // set to empty string to disable
-  ninjaUrl = '';
+  ninjaUrl = 'https://tribes.pawr.net/api/';
 
   // null - loading, false - offline, true - online
   status = null;

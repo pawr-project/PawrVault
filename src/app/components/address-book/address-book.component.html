@@ -1,6 +1,6 @@
 <div class="uk-animation-slide-left-small" uk-grid *transloco="let t">
   <div class="uk-width-1-1" id="address-book-sortable">
-    
+
     <div class="uk-margin-bottom" uk-grid>
       <div class="uk-width-expand@s uk-width-1-1">
         <h2 class="uk-heading-divider uk-text-truncate">
@@ -26,13 +26,13 @@
 
         <div class="advanced-options" *ngIf="showAdvancedOptions">
           <span [title]="( totalTrackedBalanceRaw.gt(0) ? ( '+' + ( totalTrackedBalanceRaw.toString(10) ) + ' raw' ) : '' )">
-            <span class="amount-integer">{{ totalTrackedBalance | rai: 'mnano,true' | amountsplit: 0 }}</span>
-            <span class="amount-fractional">{{ totalTrackedBalance | rai: 'mnano,true' | amountsplit: 1 }}</span>
-            <span class="currency-name">XNO</span>
+            <span class="amount-integer">{{ totalTrackedBalance | rai: 'nano,true' | amountsplit: 0 | number }}</span>
+            <span class="amount-fractional">{{ totalTrackedBalance | rai: 'nano,true' | amountsplit: 1 }}</span>
+            <span class="currency-name">PAWR</span>
           </span>
           <div *ngIf="totalTrackedPending.gt(0)" class="incoming-label">
             <div class="text-snippet">{{ 'general.new' | transloco }}</div>
-            <div class="text-full">+{{ totalTrackedPending | rai: 'mnano,true' | amountsplit: 0 }}{{ totalTrackedPending | rai: 'mnano,true' | amountsplit: 1 }} XNO</div>
+            <div class="text-full">+{{ totalTrackedPending | rai: 'nano,true' | amountsplit: 0 | number }}{{ totalTrackedPending | rai: 'nano,true' | amountsplit: 1 }} PAWR</div>
           </div>
           <div class="account-amounts-converted uk-width-1-1 text-half-muted">
             {{ totalTrackedBalanceFiat | fiat: appSettings.settings.displayCurrency }}
@@ -65,7 +65,7 @@
                             [class.disabled]="!statsRefreshEnabled"
                             [class.uk-text-muted]="!statsRefreshEnabled"
                             uk-icon="icon: refresh;"
-                            title="Reload tracked balances (for addresses not in your Nault wallet)"
+                            title="Reload tracked balances (for addresses not in your PawrVault wallet)"
                             uk-tooltip
                             (click)="updateTrackedBalances(true)"
                           ></a>
@@ -107,13 +107,13 @@
                       <ng-container *ngIf="(walletService.wallet.updatingBalance === false) else balanceLoading">
                         <div class="account-amounts-primary uk-width-1-1">
                           <span [title]="( accounts[addressBook.account]?.balanceRaw.gt(0) ? ( '+' + ( accounts[addressBook.account]?.balanceRaw.toString(10) ) + ' raw' ) : '' )">
-                            <span class="amount-integer">{{ accounts[addressBook.account]?.balance | rai: 'mnano,true' | amountsplit: 0 }}</span>
-                            <span class="amount-fractional">{{ accounts[addressBook.account]?.balance | rai: 'mnano,true' | amountsplit: 1 }}</span>
-                            <span class="currency-name">XNO</span>
+                            <span class="amount-integer">{{ accounts[addressBook.account]?.balance | rai: 'nano,true' | amountsplit: 0 | number }}</span>
+                            <span class="amount-fractional">{{ accounts[addressBook.account]?.balance | rai: 'nano,true' | amountsplit: 1 }}</span>
+                            <span class="currency-name">PAWR</span>
                           </span>
                           <div *ngIf="accounts[addressBook.account]?.pending.gt(0)" class="incoming-label">
                             <div class="text-snippet">New</div>
-                            <div class="text-full">+{{ accounts[addressBook.account]?.pending | rai: 'mnano,true' | amountsplit: 0 }}{{ accounts[addressBook.account]?.pending | rai: 'mnano,true' | amountsplit: 1 }} XNO</div>
+                            <div class="text-full">+{{ accounts[addressBook.account]?.pending | rai: 'nano,true' | amountsplit: 0 | number }}{{ accounts[addressBook.account]?.pending | rai: 'nano,true' | amountsplit: 1 }} PAWR</div>
                           </div>
                         </div>
                         <div class="account-amounts-converted uk-width-1-1 text-half-muted">
@@ -239,7 +239,7 @@
             </div>
           </div>
           <div *ngIf="!addressBookShowFileExport" class="uk-card-footer uk-text-right@s uk-text-center nlt-button-group">
-            <button (click)="exportAddressBook()" class="uk-button uk-button-primary uk-width-auto@s uk-width-1-1">{{ 'address-book.export-address-book' | transloco }}</button>
+            <button (click)="exportAddressBook()" class="uk-button uk-button-primary uk-width-auto@s uk-width-1-1">Export Address Book</button>
           </div>
         </div>
       </div>

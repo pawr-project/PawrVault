@@ -17,7 +17,7 @@ export class DeeplinkService {
   ) { }
 
   navigate(deeplink: string): boolean {
-    const nano_scheme = /^(nano|nanorep|nanoseed|nanokey|nanosign|nanoprocess|https):.+$/g;
+    const nano_scheme = /^(paw|pawrep|pawseed|pawkey|pawsign|pawprocess|https):.+$/g;
 
     if (this.util.account.isValidAccount(deeplink)) {
       // Got address, routing to send...
@@ -45,7 +45,7 @@ export class DeeplinkService {
         const amount = url.searchParams.get('amount');
         this.router.navigate(['send'], { queryParams: {
           to: url.pathname,
-          amount: amount ? this.util.nano.rawToMnano(amount) : null
+          amount: amount ? this.util.nano.rawToNano(amount) : null
         }});
 
       } else if (url.protocol === 'nanorep:' && this.util.account.isValidAccount(url.pathname)) {

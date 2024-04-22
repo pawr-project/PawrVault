@@ -47,9 +47,7 @@ export class ConfigureAppComponent implements OnInit {
   selectedLanguage = this.languages[0].id;
 
   denominations = [
-    { name: 'XNO', value: 'mnano' },
-    { name: 'knano', value: 'knano' },
-    { name: 'nano', value: 'nano' },
+    { name: 'PAWR', value: 'nano' },
   ];
   selectedDenomination = this.denominations[0].value;
 
@@ -106,7 +104,7 @@ export class ConfigureAppComponent implements OnInit {
   identiconOptions = [
     { name: this.translocoService.translate('configure-app.identicon-options.none'), value: 'none' },
     { name: this.translocoService.translate('configure-app.identicon-options.nanoidenticons-by-keerifox'), value: 'nanoidenticons' },
-    { name: this.translocoService.translate('configure-app.identicon-options.natricon-by-appditto'), value: 'natricon' },
+    { name: 'Pawnimals', value: 'natricon' },
   ];
   selectedIdenticonOption = this.identiconOptions[0].value;
 
@@ -242,8 +240,8 @@ export class ConfigureAppComponent implements OnInit {
 
     try {
       const quorumData = await this.api.confirmationQuorum();
-      this.peersStakeReq = quorumData ? Number(this.util.nano.rawToMnano(quorumData.quorum_delta)).toLocaleString('en-US') : null;
-      this.peersStakeTotal = quorumData ? Number(this.util.nano.rawToMnano(quorumData.peers_stake_total)).toLocaleString('en-US') : null;
+      this.peersStakeReq = quorumData ? Number(this.util.nano.rawToNano(quorumData.quorum_delta)).toLocaleString('en-US') : null;
+      this.peersStakeTotal = quorumData ? Number(this.util.nano.rawToNano(quorumData.peers_stake_total)).toLocaleString('en-US') : null;
     } catch {console.warn('Failed to get node stats: confirmation quorum'); }
 
     try {
@@ -626,7 +624,7 @@ export class ConfigureAppComponent implements OnInit {
 
       this.notifications.sendSuccess(this.translocoService.translate('configure-app.clear-all-data.successfully-deleted-locally-stored-data-and-reset-the'));
 
-      // Get a new random API server or Nault will get stuck in offline mode
+      // Get a new random API server or PawrVault will get stuck in offline mode
       this.updateServerSettings();
     } catch (err) {}
   }

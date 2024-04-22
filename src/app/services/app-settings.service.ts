@@ -37,8 +37,7 @@ export class AppSettingsService {
 
   settings: AppSettings = {
     language: null,
-    displayDenomination: 'mnano',
-    // displayPrefix: 'xrb',
+    displayDenomination: 'nano',
     walletStore: 'localStorage',
     displayCurrency: 'USD',
     defaultRepresentative: null,
@@ -57,7 +56,7 @@ export class AppSettingsService {
     minimumReceive: '0.000001',
     walletVersion: 1,
     lightModeEnabled: false,
-    identiconsStyle: 'nanoidenticons',
+    identiconsStyle: 'natricon',
   };
 
   serverOptions = [
@@ -70,44 +69,12 @@ export class AppSettingsService {
       shouldRandom: false,
     },
     {
-      name: 'Rainstorm City',
-      value: 'rainstorm',
-      api: 'https://rainstorm.city/api',
-      ws: 'wss://rainstorm.city/websocket',
+      name: 'pawr.net',
+      value: 'rpc01.pawr.net',
+      api: 'https://rpc01.pawr.net',
+      ws: 'wss://ws01.pawr.net',
       auth: null,
       shouldRandom: true,
-    },
-    {
-      name: 'NanOslo',
-      value: 'nanoslo',
-      api: 'https://nanoslo.0x.no/proxy',
-      ws: 'wss://nanoslo.0x.no/websocket',
-      auth: null,
-      shouldRandom: true,
-    },
-    {
-      name: 'SomeNano',
-      value: 'somenano',
-      api: 'https://node.somenano.com/proxy',
-      ws: 'wss://node.somenano.com/websocket',
-      auth: null,
-      shouldRandom: true,
-    },
-    {
-      name: 'Custom',
-      value: 'custom',
-      api: null,
-      ws: null,
-      auth: null,
-      shouldRandom: false,
-    },
-    {
-      name: 'Offline Mode',
-      value: 'offline',
-      api: null,
-      ws: null,
-      auth: null,
-      shouldRandom: false,
     }
   ];
 
@@ -117,7 +84,7 @@ export class AppSettingsService {
     acc.push( server.api.replace(/https?:\/\//g, '') );
     return acc;
   }, [
-    'node.somenano.com'
+    'peering.pawr.net'
   ]);
 
   constructor(
@@ -206,8 +173,7 @@ export class AppSettingsService {
     localStorage.removeItem(this.storeKey);
     this.settings = {
       language: 'en',
-      displayDenomination: 'mnano',
-      // displayPrefix: 'xrb',
+      displayDenomination: 'nano',
       walletStore: 'localStorage',
       displayCurrency: 'USD',
       defaultRepresentative: null,
@@ -226,7 +192,7 @@ export class AppSettingsService {
       minimumReceive: '0.000001',
       walletVersion: 1,
       lightModeEnabled: false,
-      identiconsStyle: 'nanoidenticons',
+      identiconsStyle: 'natricon',
     };
   }
 

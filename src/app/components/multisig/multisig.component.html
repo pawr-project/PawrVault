@@ -8,7 +8,7 @@
           <div class="uk-card-header uk-form-horizontal">
             <p><strong>Multi-signature approach allows to create addresses where multiple private keys are required to access and transfer the funds. Users can own a subset of private keys, and they are able to sign transactions only if they collectively own all of the participating keys.</strong>
             <br>
-            A full user guide is found <a href="https://docs.nault.cc/2021/04/20/multisig.html" target="_blank">here</a>.
+            A full user guide is found <a href="https://docs.wallet.pawr.net/2021/04/20/multisig.html" target="_blank">here</a>.
             </p>
 
             <h4>1 - Create a Multisig Address</h4>
@@ -97,7 +97,7 @@
                 </p>
               </div>
             </div>
-            
+
             <div class="uk-inline uk-width-1-1">
               <div uk-grid>
                 <div class="uk-width-1-3@l uk-width-1-1">
@@ -114,7 +114,7 @@
           <div class="uk-card-header uk-form-horizontal">
             <h4>2 - Create a Multisig Transaction</h4>
             <p>Create a SEND, RECEIVE or CHANGE block using the Remote Signing method.</p>
-            
+
             <div class="uk-form-horizontal">
               <div class="uk-margin">
                 <label class="uk-form-label" for="form-horizontal-text2">Multisig Address</label>
@@ -122,7 +122,7 @@
                   <div class="uk-inline uk-width-1-1">
                     <a class="uk-form-icon uk-form-icon-flip" uk-icon="icon: camera" (click)="openQR('multisig','account')" uk-tooltip title="Scan from QR code"></a>
                     <a *ngIf="multisigAccount !== ''" class="uk-form-icon uk-form-icon-flip second-icon" ngxClipboard [cbContent]="multisigAccount" (cbOnSuccess)="copied()" uk-icon="icon: copy" title="Copy Account" uk-tooltip></a>
-                    <input (input)="validateMultisig()" (keyup.enter)="navigateAccount()" [(ngModel)]="multisigAccount" class="uk-input" [ngClass]="{ 'uk-form-success': multisigAccountStatus === 1, 'uk-form-danger': multisigAccountStatus === 0 }" type="text" placeholder="nano_1abc..." autocomplete="off">
+                    <input (input)="validateMultisig()" (keyup.enter)="navigateAccount()" [(ngModel)]="multisigAccount" class="uk-input" [ngClass]="{ 'uk-form-success': multisigAccountStatus === 1, 'uk-form-danger': multisigAccountStatus === 0 }" type="text" placeholder="paw_1abc..." autocomplete="off">
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@
           <div class="uk-card-header uk-form-horizontal">
             <h4>3 - Multisig for Participants</h4>
             <p>If multiple co-signers, enter the data that was shared with you to participate in the signing procedure.</p>
-            
+
             <div class="uk-form-horizontal">
               <div class="uk-margin">
                 <label class="uk-form-label" for="form-horizontal-text2">Signing Data</label>

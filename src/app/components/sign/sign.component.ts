@@ -249,7 +249,7 @@ export class SignComponent implements OnInit {
           return this.notificationService.sendError(`Meaningless block. The balance and representative are unchanged!`, {length: 0});
         }
 
-        this.amount = this.util.nano.rawToMnano(this.rawAmount).toString(10);
+        this.amount = this.util.nano.rawToNano(this.rawAmount).toString(10);
 
         this.prepareTransaction();
       } else if (!this.previousBlock && this.verifyBlock(this.currentBlock)) {
@@ -268,7 +268,7 @@ export class SignComponent implements OnInit {
           return this.notificationService.sendError(`Only OPEN block is currently supported when previous block is missing`, {length: 0});
         }
 
-        this.amount = this.util.nano.rawToMnano(this.rawAmount).toString(10);
+        this.amount = this.util.nano.rawToNano(this.rawAmount).toString(10);
         this.prepareTransaction();
       } else {
         return;
@@ -369,7 +369,7 @@ export class SignComponent implements OnInit {
     switch (this.signTypeSelected) {
       // wallet
       case this.signTypes[0]:
-        this.walletAccount = this.accounts.find(a => a.id.replace('xrb_', 'nano_') === this.signatureAccount);
+        this.walletAccount = this.accounts.find(a => a.id === this.signatureAccount);
         if (!this.walletAccount) {
           this.signatureMessage = 'Could not find a matching wallet account to sign with. Make sure it\'s added under your accounts';
         } else {
@@ -422,7 +422,7 @@ export class SignComponent implements OnInit {
   async prepareTransaction() {
     // Determine fiat value of the amount (if not offline mode)
     if (this.settings.settings.serverAPI) {
-      this.amountFiat = this.util.nano.rawToMnano(this.rawAmount).times(this.price.price.lastPrice).toNumber();
+      this.amountFiat = this.util.nano.rawToNano(this.rawAmount).times(this.price.price.lastPrice).toNumber();
     }
 
     this.fromAddressBook = this.addressBookService.getAccountName(this.fromAccountID);
@@ -436,9 +436,9 @@ export class SignComponent implements OnInit {
     }
 
     if (this.txType === TxType.send || this.txType === TxType.change) {
-      this.signatureAccount = this.fromAccountID.replace('xrb_', 'nano_').toLowerCase();
+      this.signatureAccount = this.fromAccountID.toLowerCase();
     } else if (this.txType === TxType.receive || this.txType === TxType.open) {
-      this.signatureAccount = this.toAccountID.replace('xrb_', 'nano_').toLowerCase();
+      this.signatureAccount = this.toAccountID.toLowerCase();
     }
 
     if (this.shouldSign) {
@@ -570,7 +570,7 @@ export class SignComponent implements OnInit {
       }
 
       if (this.txType === TxType.receive || this.txType === TxType.open) {
-        this.currentBlock.work = await this.workPool.getWork(workBlock, 1 / 64);
+        this.currentBlock.work = await this.workPool.getWork(workBlock, 1);
       } else {
         this.currentBlock.work = await this.workPool.getWork(workBlock, 1);
       }

@@ -8,7 +8,7 @@
           You will need to manually store the recovery options for each generated address that you want to retain access to.</p>
         <div>
           <ul>
-            <li>The account can receive incoming funds at any time and live transactions can happen in any wallet that supports import of nano secret recovery seed/mnemonic or private key.</li>
+            <li>The account can receive incoming funds at any time and live transactions can happen in any wallet that supports import of a Pawr seed, mnemonic or private key.</li>
             <li>For additional security the keys can be generated and stored offline to be utilized in methods such as <a routerLink="/remote-signing" class="name">Remote Signing</a> and <a routerLink="/multisig" class="name">Multisig</a></li>
           </ul>
         </div>
@@ -20,7 +20,7 @@
         <h3 class="uk-card-title">Generate a new random keypair</h3>
         <p>For <strong>Remote Signing</strong> or <strong>Multisig</strong>, you will need to store and use the <strong>Private Key</strong>.</p>
       </div>
-      
+
       <div class="uk-card-body">
         <div uk-grid>
           <div class="uk-width-1-4@m">{{ 'configure-wallet.new-wallet.secret-recovery-seed' | transloco }} <span uk-icon="icon: info;" uk-tooltip title="Can be used to derive many private keys with different indexes or converted to a secret recovery mnemonic. It's NOT bip39/44."></span></div>
@@ -33,7 +33,7 @@
           </div>
         </div>
         <hr class="uk-divider-icon">
-    
+
         <div uk-grid>
           <div class="uk-width-1-4@m">
             {{ 'configure-wallet.new-wallet.secret-recovery-mnemonic' | transloco }} <span uk-icon="icon: info;" uk-tooltip title="Can be used to derive many private keys with different indexes or converted to a secret recovery seed. It's NOT bip39/44."></span>
@@ -47,7 +47,7 @@
           </div>
         </div>
         <hr class="uk-divider-icon">
-    
+
         <div uk-grid>
           <div class="uk-width-1-4@m">
             Private Key - Index 0
@@ -61,7 +61,7 @@
           </div>
         </div>
         <hr class="uk-divider-icon">
-        
+
         <div *ngIf="account !== ''">
           <div class="uk-alert uk-alert-danger nlt-inline-alert">
             <div class="icon-column">

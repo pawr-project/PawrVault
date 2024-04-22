@@ -1,9 +1,9 @@
 {
-  "name": "nault",
+  "name": "pawr-vault",
   "version": "1.18.3",
   "license": "MIT",
-  "description": "Wallet for interacting with nano",
-  "author": "The Nano Community / Andrew Steele",
+  "description": "Wallet for interacting with Pawr",
+  "author": "The Nano Community / Andrew Steele / Pawr community",
   "main": "desktop-app/dist/desktop-app.js",
   "scripts": {
     "ng": "ng",

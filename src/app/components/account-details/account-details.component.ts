@@ -24,7 +24,7 @@ import { TranslocoService } from '@ngneat/transloco';
   styleUrls: ['./account-details.component.css']
 })
 export class AccountDetailsComponent implements OnInit, OnDestroy {
-  nano = 1000000000000000000000000;
+  nano = 10000000000000000000000000;
   zeroHash = '0000000000000000000000000000000000000000000000000000000000000000';
 
   accountHistory: any[] = [];
@@ -76,14 +76,16 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   dateStringToday = '';
   dateStringYesterday = '';
 
+  changePawnimalModal: any = null;
+  pawnimalIconNonce = -2;
+  settingPawnimalIcon = false;
+
   // Remote signing
   addressBookResults$ = new BehaviorSubject([]);
   showAddressBook = false;
   addressBookMatch = '';
   amounts = [
-    { name: 'XNO', shortName: 'XNO', value: 'mnano' },
-    { name: 'knano', shortName: 'knano', value: 'knano' },
-    { name: 'nano', shortName: 'nano', value: 'nano' },
+    { name: 'PAWR', shortName: 'PAWR', value: 'nano' },
   ];
   selectedAmount = this.amounts[0];
 
@@ -104,7 +106,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   blockHash = null;
   blockHashReceive = null;
   remoteVisible = false;
-  blockTypes: string[] = ['Send Nano', 'Change Representative'];
+  blockTypes: string[] = ['Send Paw', 'Change Representative'];
   blockTypeSelected: string = this.blockTypes[0];
   representativeList = [];
   representativesOverview = [];
@@ -150,8 +152,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       }
     });
     this.priceSub = this.price.lastPrice$.subscribe(event => {
-      this.account.balanceFiat = this.util.nano.rawToMnano(this.account.balance || 0).times(this.price.price.lastPrice).toNumber();
-      this.account.pendingFiat = this.util.nano.rawToMnano(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
+      this.account.balanceFiat = this.util.nano.rawToNano(this.account.balance || 0).times(this.price.price.lastPrice).toNumber();
+      this.account.pendingFiat = this.util.nano.rawToNano(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
     });
 
     this.wallet.wallet.pendingBlocksUpdate$.subscribe(async receivableBlockUpdate => {
@@ -164,6 +166,9 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
 
     const mobileAccountMenuModal = UIkit.modal('#mobile-account-menu-modal');
     this.mobileAccountMenuModal = mobileAccountMenuModal;
+
+    const changePawnimalModal = UIkit.modal('#change-pawnimal-modal');
+    this.changePawnimalModal = changePawnimalModal;
 
     const mobileTransactionMenuModal = UIkit.modal('#mobile-transaction-menu-modal');
     this.mobileTransactionMenuModal = mobileTransactionMenuModal;
@@ -196,7 +201,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       // add random recommended reps to the list
       for (const representative of verifiedReps) {
         const temprep = {
-          id: representative.account,
+          id: representative.account.replace('nano_', 'paw_'),
           name: representative.alias
         };
 
@@ -218,6 +223,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.walletAccount = null;
     this.account = {};
     this.qrCodeImage = null;
+    this.pawnimalIconNonce = -1;
   }
 
   clearRemoteVars() {
@@ -263,7 +269,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.repVotingWeight = new BigNumber(0);
     this.repDonationAddress = null;
 
-    const knownRepresentative = this.repService.getRepresentative(this.account.representative);
+    const knownRepresentative = this.repService.getRepresentative(this.account.representative.replace('nano_', 'paw_'));
 
     if (knownRepresentative != null) {
       this.repLabel = knownRepresentative.name;
@@ -453,7 +459,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.clearAccountVars();
     this.loadingAccountDetails = true;
 
-    const accountID = this.router.snapshot.params.account;
+    const accountID = this.router.snapshot.params.account.replace('nano_', 'paw_');
     this.accountID = accountID;
     this.generateReceiveQR(accountID);
 
@@ -487,7 +493,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       this.loadingIncomingTxList = true;
 
       if (this.settings.settings.minimumReceive) {
-        const minAmount = this.util.nano.mnanoToRaw(this.settings.settings.minimumReceive);
+        const minAmount = this.util.nano.nanoToRaw(this.settings.settings.minimumReceive);
         pending = await this.api.pendingLimitSorted(accountID, 50, minAmount.toString(10));
       } else {
         pending = await this.api.pendingSorted(accountID, 50);
@@ -553,8 +559,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     // Set fiat values?
     this.account.balanceRaw = new BigNumber(this.account.balance || 0).mod(this.nano);
     this.account.pendingRaw = new BigNumber(this.account.pending || 0).mod(this.nano);
-    this.account.balanceFiat = this.util.nano.rawToMnano(this.account.balance || 0).times(this.price.price.lastPrice).toNumber();
-    this.account.pendingFiat = this.util.nano.rawToMnano(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
+    this.account.balanceFiat = this.util.nano.rawToNano(this.account.balance || 0).times(this.price.price.lastPrice).toNumber();
+    this.account.pendingFiat = this.util.nano.rawToNano(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
 
     await this.getAccountHistory(accountID);
 
@@ -822,6 +828,63 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.notifications.sendSuccess(`Successfully copied to clipboard!`, { identifier: 'success-copied' });
   }
 
+  async openChangePawnimalModal() {
+    if (!this.walletAccount) {
+      return;
+    }
+    if (this.util.nano.rawToNano(this.account.balance || 0).comparedTo(2) === -1) {
+      return this.notifications.sendWarning(`You need a balance of at least 2 PAWR to change your pawnimal icon`);
+    }
+    if (this.wallet.isLocked()) {
+      const wasUnlocked = await this.wallet.requestWalletUnlock();
+
+      if (wasUnlocked === false) {
+        return;
+      }
+    }
+    this.changePawnimalModal.show();
+  }
+
+  nextPawnimalNonce() {
+    this.pawnimalIconNonce++;
+  }
+
+  previousPawnimalNonce() {
+    this.pawnimalIconNonce--;
+  }
+
+  async setPawnimalIcon() {
+    if (this.settingPawnimalIcon) {
+      return;
+    }
+    const walletAccount = this.wallet.wallet.accounts.find(a => a.id === this.accountID);
+    const destinationID = 'paw_3ns1ihdrdmtys65xsntgohdu78bu7heuzkb7hpcn179q6k9qi7rg336scbit';
+    const amount = this.util.nano.nanoToRaw(new BigNumber(1)).plus(this.pawnimalIconNonce);
+    this.settingPawnimalIcon = true;
+    const newHash = await this.nanoBlock.generateSend(walletAccount, destinationID, amount, this.wallet.isLedgerWallet());
+    this.settingPawnimalIcon = false;
+    if (newHash) {
+      // We give the server 5 seconds to process our transaction, then we refresh the image on screen
+      setTimeout(function() {
+        // Loop over all current images and add something random to the end
+        const randomUrlAddition = '&random=' + Math.random();
+        const images = document.getElementsByClassName('natricon');
+
+        for (let i = 0; i < images.length; i++) {
+          const pawnimalimg = images[i] as HTMLImageElement;
+          if (pawnimalimg.src.includes(walletAccount.id)) {
+            pawnimalimg.src = pawnimalimg.src + randomUrlAddition;
+          }
+        }
+      }, 5000);
+
+      this.notifications.sendSuccess('Pawnimal icon successfully changed.');
+      this.changePawnimalModal.hide();
+    } else {
+      this.notifications.sendError('Could not update Pawnimal icon. The transaction failed.');
+    }
+  }
+
   // Remote signing methods
   // An update to the Nano amount, sync the fiat value
   syncFiatPrice() {
@@ -836,7 +899,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const precision = this.settings.settings.displayCurrency === 'BTC' ? 1000000 : 100;
 
     // Determine fiat value of the amount
-    const fiatAmount = this.util.nano.rawToMnano(rawAmount)
+    const fiatAmount = this.util.nano.rawToNano(rawAmount)
     .times(this.price.price.lastPrice)
     .times(precision)
     .floor().div(precision).toNumber();
@@ -851,7 +914,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       return;
     }
     if (!this.util.string.isNumeric(this.amountFiat)) return;
-    const rawAmount = this.util.nano.mnanoToRaw(new BigNumber(this.amountFiat).div(this.price.price.lastPrice));
+    const rawAmount = this.util.nano.nanoToRaw(new BigNumber(this.amountFiat).div(this.price.price.lastPrice));
     const nanoVal = this.util.nano.rawToNano(rawAmount).floor();
     const nanoAmount = this.getAmountValueFromBase(this.util.nano.nanoToRaw(nanoVal));
 
@@ -882,7 +945,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.showAddressBook = false, 400);
 
     // Remove spaces from the account id
-    this.toAccountID = this.toAccountID.replace(/ /g, '');
+    this.toAccountID = this.toAccountID.replace(/ /g, '').replace('nano_', 'paw_');
 
     this.addressBookMatch = (
         this.addressBook.getAccountName(this.toAccountID)
@@ -929,8 +992,6 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     switch (this.selectedAmount.value) {
       default:
       case 'nano': return this.util.nano.nanoToRaw(value);
-      case 'knano': return this.util.nano.knanoToRaw(value);
-      case 'mnano': return this.util.nano.mnanoToRaw(value);
     }
   }
 
@@ -938,8 +999,6 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     switch (this.selectedAmount.value) {
       default:
       case 'nano': return this.util.nano.rawToNano(value);
-      case 'knano': return this.util.nano.rawToKnano(value);
-      case 'mnano': return this.util.nano.rawToMnano(value);
     }
   }
 
@@ -968,7 +1027,6 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
         return;
       }
     }
-
     receivableBlock.loading = true;
 
     const createdReceiveBlockHash =
@@ -978,7 +1036,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       receivableBlock.received = true;
       this.mobileTransactionMenuModal.hide();
       this.notifications.removeNotification('success-receive');
-      this.notifications.sendSuccess(`Successfully received nano!`, { identifier: 'success-receive' });
+      this.notifications.sendSuccess(`Successfully received PAWR`, { identifier: 'success-receive' });
       // clear the list of pending blocks. Updated again with reloadBalances()
       this.wallet.clearPendingBlocks();
     } else {
@@ -998,7 +1056,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const isValid = this.util.account.isValidAccount(this.toAccountID);
     if (!isValid) return this.notifications.sendWarning(`To account address is not valid`);
     if (!this.accountID || !this.toAccountID) return this.notifications.sendWarning(`From and to account are required`);
-    if (!this.validateAmount()) return this.notifications.sendWarning(`Invalid XNO Amount`);
+    if (!this.validateAmount()) return this.notifications.sendWarning(`Invalid PAWR Amount`);
 
     this.qrCodeImageBlock = null;
 
@@ -1018,13 +1076,13 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const nanoAmount = this.rawAmount.div(this.nano);
 
     if (this.amount < 0 || rawAmount.lessThan(0)) return this.notifications.sendWarning(`Amount is invalid`);
-    if (from.balanceBN.minus(rawAmount).lessThan(0)) return this.notifications.sendError(`From account does not have enough XNO`);
+    if (from.balanceBN.minus(rawAmount).lessThan(0)) return this.notifications.sendError(`From account does not have enough PAWR`);
 
     // Determine a proper raw amount to show in the UI, if a decimal was entered
     this.amountRaw = this.rawAmount.mod(this.nano);
 
     // Determine fiat value of the amount
-    this.amountFiat = this.util.nano.rawToMnano(rawAmount).times(this.price.price.lastPrice).toNumber();
+    this.amountFiat = this.util.nano.rawToNano(rawAmount).times(this.price.price.lastPrice).toNumber();
 
     const remaining = new BigNumber(from.balance).minus(this.rawAmount);
     const remainingDecimal = remaining.toString(10);
@@ -1032,7 +1090,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const defaultRepresentative = this.settings.settings.defaultRepresentative || this.nanoBlock.getRandomRepresentative();
     const representative = from.representative || defaultRepresentative;
     const blockData = {
-      account: this.accountID.replace('xrb_', 'nano_').toLowerCase(),
+      account: this.accountID.toLowerCase(),
       previous: from.frontier,
       representative: representative,
       balance: remainingDecimal,
@@ -1053,7 +1111,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     if (!('contents' in previousBlockInfo)) return this.notifications.sendError(`Previous block not found`);
     const jsonBlock = JSON.parse(previousBlockInfo.contents);
     const blockDataPrevious = {
-      account: jsonBlock.account.replace('xrb_', 'nano_').toLowerCase(),
+      account: jsonBlock.account.toLowerCase(),
       previous: jsonBlock.previous,
       representative: jsonBlock.representative,
       balance: jsonBlock.balance,
@@ -1090,7 +1148,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const newBalanceDecimal = newBalance.toString(10);
 
     const blockData = {
-      account: this.accountID.replace('xrb_', 'nano_').toLowerCase(),
+      account: this.accountID.toLowerCase(),
       previous: previousBlock,
       representative: representative,
       balance: newBalanceDecimal,
@@ -1114,7 +1172,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       if (!('contents' in previousBlockInfo)) return this.notifications.sendError(`Previous block not found`);
       const jsonBlock = JSON.parse(previousBlockInfo.contents);
       blockDataPrevious = {
-        account: jsonBlock.account.replace('xrb_', 'nano_').toLowerCase(),
+        account: jsonBlock.account.toLowerCase(),
         previous: jsonBlock.previous,
         representative: jsonBlock.representative,
         balance: jsonBlock.balance,
@@ -1155,7 +1213,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const balance = new BigNumber(account.balance);
     const balanceDecimal = balance.toString(10);
     const blockData = {
-      account: this.accountID.replace('xrb_', 'nano_').toLowerCase(),
+      account: this.accountID.toLowerCase().replace('nano_', 'paw_a'),
       previous: account.frontier,
       representative: this.representativeModel,
       balance: balanceDecimal,
@@ -1163,10 +1221,10 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     };
 
     this.blockHash = nanocurrency.hashBlock({
-      account: blockData.account,
+      account: blockData.account.replace('nano_', 'paw_'),
       link: blockData.link,
       previous: blockData.previous,
-      representative: blockData.representative,
+      representative: blockData.representative.replace('nano_', 'paw_'),
       balance: blockData.balance
     });
 
@@ -1178,9 +1236,9 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     if (!('contents' in previousBlockInfo)) return this.notifications.sendError(`Previous block not found`);
     const jsonBlock = JSON.parse(previousBlockInfo.contents);
     const blockDataPrevious = {
-      account: jsonBlock.account.replace('xrb_', 'nano_').toLowerCase(),
+      account: jsonBlock.account.toLowerCase().replace('nano_', 'paw_'),
       previous: jsonBlock.previous,
-      representative: jsonBlock.representative,
+      representative: jsonBlock.representative.replace('nano_', 'paw_'),
       balance: jsonBlock.balance,
       link: jsonBlock.link,
       signature: jsonBlock.signature,

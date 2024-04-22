@@ -22,17 +22,17 @@
         <div class="account-balances">
           <ng-container *ngIf="!loadingAccountDetails else cardBalancesLoading">
             <div class="balance-container primary">
-              <div class="currency-name">XNO</div>
+              <div class="currency-name">PAWR</div>
               <div class="amount-container">
-                <div class="amount-integer">{{ !account ? 0 : (account.balance || 0 | rai: 'mnano,true') | amountsplit: 0 }}</div>
-                <div class="amount-fractional">{{ !account ? 0 : (account.balance || 0 | rai: 'mnano,true') | amountsplit: 1 }}</div>
+                <div class="amount-integer">{{ !account ? 0 : (account.balance || 0 | rai: 'nano,true') | amountsplit: 0 | number }}</div>
+                <div class="amount-fractional">{{ !account ? 0 : (account.balance || 0 | rai: 'nano,true') | amountsplit: 1 }}</div>
                 <div class="amount-updating" *ngIf="wallet.updatingBalance && isConfigured()"><div uk-spinner="ratio: 0.5;"></div></div>
               </div>
             </div>
             <div class="balance-container converted" *ngIf="settings.settings.displayCurrency">
               <div class="currency-name"><span class="estimate-symbol">~</span>{{ settings.settings.displayCurrency }}</div>
               <div class="amount-container">
-                <div class="amount-integer">{{ (account.balanceFiat | fiat: settings.settings.displayCurrency) | amountsplit: 0 }}</div>
+                <div class="amount-integer">{{ (account.balanceFiat | fiat: settings.settings.displayCurrency) | amountsplit: 0 | number }}</div>
                 <div class="amount-fractional">{{ (account.balanceFiat | fiat: settings.settings.displayCurrency) | amountsplit: 1 }}</div>
               </div>
             </div>
@@ -60,7 +60,7 @@
 
         <div uk-grid>
 
-          <app-nano-identicon scale="12" [accountID]="accountID" [settingIdenticonsStyle]="settings.settings.identiconsStyle" class="nano-identicon" *ngIf="(settings.settings.identiconsStyle !== 'none')"></app-nano-identicon>
+          <app-nano-identicon scale="12" [accountID]="accountID"(click)="openChangePawnimalModal()"  [settingIdenticonsStyle]="settings.settings.identiconsStyle" class="nano-identicon" *ngIf="(settings.settings.identiconsStyle !== 'none')"></app-nano-identicon>
 
           <div class="uk-width-1-1 uk-width-expand@s">
 
@@ -175,9 +175,9 @@
                     class="account-amounts-primary-confirmed"
                     [title]="( (account && account.balanceRaw && account.balanceRaw.gt(0) ) ? ( '+' + ( account.balanceRaw.toString(10)  ) + ' raw' ) : '' )"
                   >
-                    <span class="amount-currency-symbol xno-symbol"></span>
-                    <span class="amount-integer">{{ !account ? 0 : (account.balance || 0 | rai: 'mnano,true') | amountsplit: 0 }}</span>
-                    <span class="amount-fractional">{{ !account ? 0 : (account.balance || 0 | rai: 'mnano,true') | amountsplit: 1 }}</span>
+                    <span class="amount-integer">{{ !account ? 0 : (account.balance || 0 | rai: 'nano,true') | amountsplit: 0 | number }}</span>
+                    <span class="amount-fractional">{{ !account ? 0 : (account.balance || 0 | rai: 'nano,true') | amountsplit: 1 }}</span>
+                    <span class="amount-currency-name">PAWR</span>
                   </div>
                   <div
                     *ngIf="account && account.pending && (account.pending > 0)"
@@ -187,9 +187,9 @@
                     <div class="text-snippet">{{ 'general.new' | transloco }}</div>
                     <div class="text-full">
                       <div class="amount-sign">+</div>
-                      <div class="amount-currency-symbol xno-symbol"></div>
-                      <div class="amount-integer">{{ account.pending | rai: 'mnano,true' | amountsplit: 0 }}</div>
-                      <div class="amount-fractional">{{ account.pending | rai: 'mnano,true' | amountsplit: 1 }}</div>
+                      <div class="amount-integer">{{ account.pending | rai: 'nano,true' | amountsplit: 0 | number }}</div>
+                      <div class="amount-fractional">{{ account.pending | rai: 'nano,true' | amountsplit: 1 }}</div>
+                      <div class="amount-currency-name">PAWR</div>
                     </div>
                   </div>
                 </div>
@@ -386,9 +386,9 @@
           </ng-template>
           <td class="amount-column uk-text-middle uk-text-muted" [title]="('Incoming Transaction') + ( (pending.amountRaw && (pending.amountRaw > 0) ) ? ( ', +' + ( pending.amountRaw.toString(10) ) + ' raw' ) : '' )">
             <span class="uk-text-small">{{ 'general.blockactions.ready-to-receive' | transloco }}</span><br>
-            <span class="amount-integer">{{ pending.amount | rai: 'mnano,true' | amountsplit: 0 }}</span>
-            <span class="amount-fractional">{{ pending.amount | rai: 'mnano,true' | amountsplit: 1 }}</span>
-            <span class="currency-name">XNO</span>
+            <span class="amount-integer">{{ pending.amount | rai: 'nano,true' | amountsplit: 0 | number }}</span>
+            <span class="amount-fractional">{{ pending.amount | rai: 'nano,true' | amountsplit: 1 }}</span>
+            <span class="currency-name">PAWR</span>
             <div class="compact-actions-date">
               <ng-template [ngTemplateOutlet]="transactionActionsOrDate"></ng-template>
             </div>
@@ -482,9 +482,9 @@
                   <span class="icon-unconfirmed" uk-icon="icon: clock;" *ngIf="(history.confirmed === false)"></span>
                 </span><br>
               </ng-container>
-              <span class="amount-integer">{{ history.amount | rai: 'mnano,true' | amountsplit: 0 }}</span>
-              <span class="amount-fractional">{{ history.amount | rai: 'mnano,true' | amountsplit: 1 }}</span>
-              <span class="currency-name">XNO</span>
+              <span class="amount-integer">{{ history.amount | rai: 'nano,true' | amountsplit: 0 | number }}</span>
+              <span class="amount-fractional">{{ history.amount | rai: 'nano,true' | amountsplit: 1 }}</span>
+              <span class="currency-name">PAWR</span>
               <div class="compact-actions-date text-half-muted">
                 <ng-template [ngTemplateOutlet]="transactionActionsOrDate"></ng-template>
               </div>
@@ -526,7 +526,7 @@
         <h2 class="uk-modal-title">Unsigned Incoming Block</h2>
     </div>
     <div class="uk-modal-body modal-qr-body">
-      <a routerLink="/qr-scan" routerLinkActive="active" class="uk-modal-close">Scan</a> the unsigned QR with an offline Nault, or copy the "Unsigned Block" to <a routerLink="/remote-signing" routerLinkActive="active" class="uk-modal-close">Step 2</a><br><br>
+      <a routerLink="/qr-scan" routerLinkActive="active" class="uk-modal-close">Scan</a> the unsigned QR with an offline PawrVault, or copy the "Unsigned Block" to <a routerLink="/remote-signing" routerLinkActive="active" class="uk-modal-close">Step 2</a><br><br>
 
       <div *ngIf="blockHashReceive" class="uk-width-1-1 uk-text-center uk-margin-small-bottom" style="display: flex; justify-content: center;">
         <span class="uk-text-small" uk-tooltip title="Unsigned block string to be copied to remote device" style="overflow-wrap: anywhere;"><strong>Unsigned Block</strong></span>
@@ -609,7 +609,7 @@
                   </div>
                   <div class="uk-width-1-1" style="margin-top: 10px;" *ngIf="settings.settings.displayCurrency">
                     <div class="uk-width-1-1 uk-inline">
-                      <a class="uk-form-icon uk-link-reset uk-link-muted" style="padding-left: 7px;" uk-tooltip title="Last Price: {{ price.price.lastPrice | fiat: settings.settings.displayCurrency }} / XNO">{{ settings.settings.displayCurrency | currencySymbol }}</a>
+                      <a class="uk-form-icon uk-link-reset uk-link-muted" style="padding-left: 7px;" uk-tooltip title="Last Price: {{ price.price.lastPrice | fiat: settings.settings.displayCurrency }} / PAWR">{{ settings.settings.displayCurrency | currencySymbol }}</a>
                       <input [(ngModel)]="amountFiat" (input)="syncNanoPrice()" style="padding-left: 50px !important;" class="uk-input" id="form-horizontal-text-fiat" type="text" placeholder="Amount of {{ settings.settings.displayCurrency }} to send">
                     </div>
                   </div>
@@ -626,8 +626,8 @@
           <div class="uk-form-controls">
             <div class="form-input-destination uk-inline uk-width-1-1">
               <a class="uk-form-icon uk-form-icon-flip" uk-icon="icon: camera" (click)="openQR('rep1','account')" uk-tooltip title="Scan from QR code"></a>
-              <input (blur)="validateRepresentative()" (input)="searchRepresentatives()" (focus)="searchRepresentatives()" (keyup.enter)="generateChange()" [(ngModel)]="representativeModel" class="uk-input" [ngClass]="{ 'uk-form-success': repStatus === 2, 'uk-form-danger': repStatus === 0 }" id="form-horizontal-text3" type="text" placeholder="nano_abc...123" #repInput>
-              
+              <input (blur)="validateRepresentative()" (input)="searchRepresentatives()" (focus)="searchRepresentatives()" (keyup.enter)="generateChange()" [(ngModel)]="representativeModel" class="uk-input" [ngClass]="{ 'uk-form-success': repStatus === 2, 'uk-form-danger': repStatus === 0 }" id="form-horizontal-text3" type="text" placeholder="paw_abc...123" #repInput>
+
               <div *ngIf="(representativeResults$ | async).length" [hidden]="!showRepresentatives" class="nlt-dropdown uk-animation-slide-down-small uk-width-1-1 uk-card uk-card-default uk-card-body uk-position-absolute" style="z-index: 15000">
                 <ul class="uk-nav uk-nav-default">
                   <li class="uk-nav-header">Representative List Results</li>
@@ -749,6 +749,37 @@
   </div>
 </div>
 
+<div id="change-pawnimal-modal" uk-modal>
+  <div class="uk-modal-dialog">
+    <div class="uk-modal-body">
+      <div class="uk-width-1-1">
+        <h3 class="menu-header">
+          Change Pawnimal
+        </h3>
+        <hr>
+        <div class="menu-option" (click)="previousPawnimalNonce()">
+          <span>Up</span>
+        </div>
+        <div>
+          <div class="uk-width-1-1 uk-margin-auto uk-margin-auto-vertical">
+            <div class="change-pawnimal-icon-container">
+              <app-nano-identicon scale="12" [nonce]="pawnimalIconNonce" [accountID]="accountID" [settingIdenticonsStyle]="settings.settings.identiconsStyle" class="nano-identicon" *ngIf="(settings.settings.identiconsStyle !== 'none')"></app-nano-identicon>
+            </div>
+          </div>
+        </div>
+        <div class="menu-option" (click)="nextPawnimalNonce()">
+          <span>Down</span>
+        </div>
+        <div class="menu-option" (click)="setPawnimalIcon()">
+          <span *ngIf="settingPawnimalIcon" class="spinner" uk-spinner="ratio: 0.5;"></span>
+          <span *ngIf="settingPawnimalIcon"> &nbsp; </span>
+          <span>I want this one</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-position-bottom" id="mobile-transaction-menu-modal" uk-modal>
   <div class="uk-modal-dialog">
     <div class="uk-modal-body">
@@ -797,7 +828,7 @@
             routerLink="/send"
             [queryParams]="{
               to: mobileTransactionData.account,
-              amount: util.nano.rawToMnano(mobileTransactionData.amount)
+              amount: util.nano.rawToNano(mobileTransactionData.amount)
             }"
             (click)="mobileTransactionMenuModal.hide()"
             *ngIf="(
